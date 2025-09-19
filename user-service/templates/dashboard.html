@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .section { margin-bottom: 30px; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        h1, h2 { color: #333; }
+        input[type="text"], textarea { width: calc(100% - 22px); padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #5cb85c; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #4cae4c; }
+        .recipe-list-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .recipe-list-item h3 { margin: 0; color: #007bff; }
+        #message { margin-top: 20px; font-weight: bold; }
+        #logout-button { float: right; background-color: #d9534f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="logout-button" onclick="logout()">Logout</button>
+        <h1>Welcome to Your Recipe Dashboard!</h1>
+
+        <div class="section">
+            <h2>Add New Recipe</h2>
+            <input type="text" id="add-title" placeholder="Recipe Title" required>
+            <textarea id="add-ingredients" rows="4" placeholder="Ingredients (comma-separated)" required></textarea>
+            <textarea id="add-instructions" rows="4" placeholder="Instructions" required></textarea>
+            <button onclick="addRecipe()">Add Recipe</button>
+            <div id="add-message" class="message"></div>
+        </div>
+
+        <div class="section">
+            <h2>Search Recipes</h2>
+            <input type="text" id="search-query" placeholder="Enter search query">
+            <button onclick="searchRecipes()">Search</button>
+        </div>
+
+        <div class="section">
+            <h2>Your Recipes</h2>
+            <button onclick="listRecipes()">Show All My Recipes</button>
+            <div id="recipe-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "http://recipe-service:6002"; // This is the Kubernetes service name
+        const userId = sessionStorage.getItem('user_id') || 1; // Default to 1 if not found
+
+        async function addRecipe() {
+            const title = document.getElementById('add-title').value;
+            const ingredients = document.getElementById('add-ingredients').value;
+            const instructions = document.getElementById('add-instructions').value;
+
+            const response = await fetch(`${API_BASE_URL}/add_recipe`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, user_id: userId, ingredients, instructions })
+            });
+            const data = await response.json();
+            document.getElementById('add-message').textContent = data.message || data.error;
+            if (response.ok) {
+                document.getElementById('add-title').value = '';
+                document.getElementById('add-ingredients').value = '';
+                document.getElementById('add-instructions').value = '';
+                listRecipes(); // Refresh the list
+            }
+        }
+
+        async function listRecipes() {
+            const response = await fetch(`${API_BASE_URL}/list_recipes/${userId}`);
+            const recipes = await response.json();
+            displayRecipes(recipes);
+        }
+
+        async function searchRecipes() {
+            const query = document.getElementById('search-query').value;
+            if (!query) return;
+
+            const response = await fetch(`${API_BASE_URL}/search_recipe?query=${encodeURIComponent(query)}`);
+            const recipes = await response.json();
+            displayRecipes(recipes);
+        }
+        
+        function displayRecipes(recipes) {
+            const recipeList = document.getElementById('recipe-list');
+            recipeList.innerHTML = '';
+            if (recipes.length === 0) {
+                recipeList.innerHTML = '<p>No recipes found.</p>';
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                const item = document.createElement('div');
+                item.className = 'recipe-list-item';
+                item.innerHTML = `
+                    <h3>${recipe.title}</h3>
+                    <p><strong>Ingredients:</strong> ${recipe.ingredients}</p>
+                    <p><strong>Instructions:</strong> ${recipe.instructions}</p>
+                `;
+                recipeList.appendChild(item);
+            });
+        }
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        // On page load, try to list recipes
+        window.onload = function() {
+            listRecipes();
+        };
+    </script>
+</body>
+</html>

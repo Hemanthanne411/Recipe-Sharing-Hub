@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recipe-service-deployment
+  labels:
+    app: recipe-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recipe-service
+  template:
+    metadata:
+      labels:
+        app: recipe-service
+    spec:
+      # ... (rest of the file remains the same)
+      containers:
+      - name: recipe-service
+        image: hemanthanne411/recipe-service:latest
+        ports:
+        - containerPort: 6002
+        env:
+        - name: POSTGRES_DB
+          value: "recipe_app_db"
+        - name: POSTGRES_USER
+          value: "app_user"
+        - name: POSTGRES_HOST
+          value: "postgres-service"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-password-secret
+              key: password
+# ... (rest of the file remains the same)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recipe-service
+spec:
+  selector:
+    app: recipe-service
+  ports:
+  - protocol: TCP
+    port: 6002
+    targetPort: 6002
+  type: ClusterIP

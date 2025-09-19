@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 800px; margin: auto; padding: 30px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: #2c3e50; font-size: 2.5rem; margin: 0; }
+        .button { background-color: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; font-weight: bold; transition: background-color 0.3s; }
+        .button:hover { background-color: #2980b9; }
+        .logout-button { background-color: #e74c3c; }
+        .logout-button:hover { background-color: #c0392b; }
+        .search-container { margin-bottom: 30px; }
+        .search-container h2 { font-size: 1.5rem; color: #34495e; margin-bottom: 10px; }
+        .search-box { display: flex; }
+        .search-box input { flex-grow: 1; padding: 12px; border: 1px solid #bdc3c7; border-radius: 8px; font-size: 1rem; }
+        .search-box button { margin-left: 10px; }
+        .recipe-list-section { margin-top: 30px; }
+        .recipe-list-section h2 { font-size: 1.5rem; color: #34495e; margin-bottom: 10px; }
+        .recipe-grid { display: grid; gap: 20px; }
+        .recipe-card { background-color: #ecf0f1; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+        .recipe-card h3 { color: #2980b9; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to the Recipe App!</h1>
+            <a href="/logout" class="button logout-button">Logout</a>
+        </div>
+
+        <div class="section search-container">
+            <h2>Find Your Next Recipe</h2>
+            <div class="search-box">
+                <input type="text" id="search-query" placeholder="Search by title or ingredients...">
+                <button class="button" onclick="searchAndDisplay()">Search</button>
+            </div>
+            <div id="search-results" class="recipe-grid"></div>
+        </div>
+
+        <div class="section recipe-list-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Recent Recipes</h2>
+                <a href="/add" class="button">Add New Recipe</a>
+                <a href="/list" class="button">My Recipes</a>
+            </div>
+            <div id="recent-recipes" class="recipe-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "/api";
+        const userId = sessionStorage.getItem('user_id');
+
+        async function searchAndDisplay() {
+            const query = document.getElementById('search-query').value;
+            const response = await fetch(`${API_BASE_URL}/search_recipe?query=${encodeURIComponent(query)}`);
+            const recipes = await response.json();
+            displayRecipes(recipes, 'search-results');
+        }
+
+        async function fetchRecentRecipes() {
+            const response = await fetch(`${API_BASE_URL}/recent_recipes`);
+            const recipes = await response.json();
+            displayRecipes(recipes, 'recent-recipes');
+        }
+        
+        function displayRecipes(recipes, elementId) {
+            const listElement = document.getElementById(elementId);
+            listElement.innerHTML = '';
+            if (recipes.length === 0) {
+                listElement.innerHTML = '<p>No recipes found.</p>';
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                const item = document.createElement('div');
+                item.className = 'recipe-card';
+                item.innerHTML = `
+                    <h3>${recipe.title}</h3>
+                    <p><strong>Ingredients:</strong> ${recipe.ingredients}</p>
+                    <p><strong>Instructions:</strong> ${recipe.instructions}</p>
+                `;
+                listElement.appendChild(item);
+            });
+        }
+
+        window.onload = function() {
+            fetchRecentRecipes();
+        };
+    </script>
+</body>
+</html>
