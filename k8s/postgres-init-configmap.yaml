@@ -1,7 +1,7 @@
 apiVersion: v1
-kind: ConfigMap
+kind: ConfigMap # configmap object to configure our database
 metadata:
-  name: postgres-init-configmap
+  name: postgres-init-configmap # Unique Object name
 data:
   init.sql: |
     -- init.sql

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim # Request for storage to make database persistent across restarts
+metadata:
+  name: postgres-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce # Access the storage by a single pod at a time
+  resources:
+    requests:
+      storage: 1Gi

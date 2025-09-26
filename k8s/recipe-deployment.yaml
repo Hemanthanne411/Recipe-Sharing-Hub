@@ -5,7 +5,7 @@ metadata:
   labels:
     app: recipe-service
 spec:
-  replicas: 1
+  replicas: 1 # Scaling factor
   selector:
     matchLabels:
       app: recipe-service
@@ -14,13 +14,12 @@ spec:
       labels:
         app: recipe-service
     spec:
-      # ... (rest of the file remains the same)
       containers:
       - name: recipe-service
         image: hemanthanne411/recipe-service:latest
         ports:
-        - containerPort: 6002
-        env:
+        - containerPort: 6002 # allow traffic to this port to be routed to flask app
+        env: # Same env values 
         - name: POSTGRES_DB
           value: "recipe_app_db"
         - name: POSTGRES_USER
@@ -31,20 +30,6 @@ spec:
           value: "5432"
         - name: POSTGRES_PASSWORD
           valueFrom:
-            secretKeyRef:
+            secretKeyRef: # Getting password (env value) from secret object
               name: postgres-password-secret
               key: password
-# ... (rest of the file remains the same)
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: recipe-service
-spec:
-  selector:
-    app: recipe-service
-  ports:
-  - protocol: TCP
-    port: 6002
-    targetPort: 6002
-  type: ClusterIP
