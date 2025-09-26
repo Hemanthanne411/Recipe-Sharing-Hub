@@ -47,6 +47,7 @@ minikube start
 This command creates a Kubernetes Secret to securely store the database password, which is a required step before deployment.
 
 ```sh
+kubectl create namespace recipe-app
 kubectl create secret generic postgres-password-secret --from-literal=password=mysecretpassword6432 -n recipe-app
 ```
 
