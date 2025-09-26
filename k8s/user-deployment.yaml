@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment # Deployment object for user-service
 metadata:
   name: user-service-deployment
+  namespace: recipe-app
   labels:
     app: user-service
 spec:

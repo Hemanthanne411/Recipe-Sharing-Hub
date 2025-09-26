@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment # Deployment object
 metadata:
   name: postgres-deployment
+  namespace: recipe-app
 spec:
   replicas: 1
   selector:

@@ -47,7 +47,7 @@ minikube start
 This command creates a Kubernetes Secret to securely store the database password, which is a required step before deployment.
 
 ```sh
-kubectl create secret generic postgres-password-secret --from-literal=password=mysecretpassword6432
+kubectl create secret generic postgres-password-secret --from-literal=password=mysecretpassword6432 -n recipe-app
 ```
 
 ### 3\. Deploy to Kubernetes
@@ -55,7 +55,7 @@ kubectl create secret generic postgres-password-secret --from-literal=password=m
 Apply all the Kubernetes manifest files to deploy your application, database, and configurations. Change the directory to / k8s
 
 ```sh
-kubectl apply -f .
+kubectl apply -f . -n recipe-app
 ```
 
 ### 4\. Check Pod Status
@@ -63,7 +63,7 @@ kubectl apply -f .
 Verify that all your microservice pods are running correctly.
 
 ```sh
-kubectl get pods
+kubectl get pods -n recipe-app
 ```
 
 ### 5\. Access the Application
@@ -71,7 +71,7 @@ kubectl get pods
 The `user-service` is exposed as a `NodePort` service. To get the URL to access the application, run this command and open the URL in your web browser.
 
 ```sh
-minikube service user-service --url
+minikube service user-service --namespace=recipe-app --url
 ```
 
 ## 📦 Project Structure
