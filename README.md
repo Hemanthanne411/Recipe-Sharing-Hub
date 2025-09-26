@@ -1,4 +1,5 @@
 
+
 # Recipe Sharing Microservices Application
 
 ## 📝 Project Description
@@ -9,51 +10,59 @@ This is a modern, microservices-based web application for sharing recipes. The a
 
   * **User Authentication**: Secure user registration and login functionality.
   * **Recipe Management**: Users can create, list, and view their personal recipes.
-  * **Recipe Search**: A robust search functionality to find recipes by title or ingredients.
-  * **Persistent Data Storage**: All user and recipe data is stored in a persistent database.
-  * **Containerized Services**: The entire application is containerized using Docker.
-  * **Microservices Architecture**: The application logic is separated into independent, single-purpose services.
+  * **Persistent Data Storage**: All user and recipe data is stored in a persistent **PostgreSQL** database.
+  * **Containerized Services**: The entire application is containerized using **Docker**.
+  * **Microservices Architecture**: The application logic is separated into independent, single-purpose services for enhanced modularity and scalability.
+  * **External Access**: The application is accessible from outside the Kubernetes cluster via a NodePort service.
 
 ## 🏛️ Architecture
 
-The application is built on a microservices architecture, with each component running as a separate service. All services are orchestrated by **Kubernetes** to ensure scalability and reliability.
+The application is built on a microservices architecture, with each component running as a separate service orchestrated by **Kubernetes** to ensure scalability and reliability.
+### Architecture Diagram
+![Recipe App Architecture](./ACCBD_DIAGRAM_REAL.png)
 
 ### Services
 
-  * **`user-service`**: A Flask-based API Gateway and frontend server. It handles user authentication (signup, login) and acts as a proxy, forwarding requests to the `recipe-service`.
-  * **`recipe-service`**: A Flask-based API that manages all recipe data. It communicates directly with the database.
+  * **`user-service`**: A Flask-based service that handles user authentication (signup, login).
+  * **`recipe-service`**: A Flask-based API that manages all recipe data and communicates directly with the database.
   * **`postgres`**: A PostgreSQL database for persistent data storage.
+
+
+-----
 
 ## 🚀 Getting Started
 
-To run this project on your local machine using Minikube, follow these simple steps.
- The Docker images are pre-built and hosted publicly, so there is no need to build them, make sure Docker Desktop is running in the background.
+Follow these steps to set up and run the project on your local machine using Minikube. The Docker images are pre-built and hosted publicly, so there is no need to build them. Make sure Docker Desktop is running in the background.
 
 ### Prerequisites
 
-  * [**Minikube**](https://minikube.sigs.k8s.io/docs/start/)
-  * [**kubectl**](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+  * **Docker Desktop**: Running in the background.
+  * **Minikube**: Ensure it's installed and running.
+  * **kubectl**: Installed and configured to communicate with your Minikube cluster.
+  * **Git**: For cloning the repository.
 
-### 1\. Start Minikube
-
-Start your Minikube cluster.
+### 1\. Clone the Repository
 
 ```sh
-minikube start
+git clone https://github.com/hemanthanne411/Recipe-Sharing-Hub-main.git
+cd Recipe-Sharing-Hub-main/k8s
 ```
 
-### 2\. Create Kubernetes Secret
+### 2\. Prepare the Environment
 
-This command creates a Kubernetes Secret to securely store the database password, which is a required step before deployment.
+First, you need to create the Kubernetes namespace for the application and then create the secret for the database password.
 
 ```sh
-kubectl create namespace recipe-app
-kubectl create secret generic postgres-password-secret --from-literal=password=mysecretpassword6432 -n recipe-app
+# Create the namespace for the application
+kubectl apply -f namespace.yaml
+
+# Create the Kubernetes Secret for the database password
+kubectl create secret generic postgres-password-secret --from-literal=password=mysecretpassword1011 -n recipe-app
 ```
 
 ### 3\. Deploy to Kubernetes
 
-Apply all the Kubernetes manifest files to deploy your application, database, and configurations. Change the directory to / k8s
+Apply all the Kubernetes manifest files to deploy your application's services and configurations into the `recipe-app` namespace.
 
 ```sh
 kubectl apply -f . -n recipe-app
@@ -61,7 +70,7 @@ kubectl apply -f . -n recipe-app
 
 ### 4\. Check Pod Status
 
-Verify that all your microservice pods are running correctly.
+Verify that all your microservice pods are running correctly. The status should show `Running` for all of them.
 
 ```sh
 kubectl get pods -n recipe-app
@@ -74,6 +83,8 @@ The `user-service` is exposed as a `NodePort` service. To get the URL to access 
 ```sh
 minikube service user-service --namespace=recipe-app --url
 ```
+
+-----
 
 ## 📦 Project Structure
 
@@ -99,6 +110,4 @@ minikube service user-service --namespace=recipe-app --url
 └── README.md
 ```
 
-## 📄 License
-
-This project is licensed under the MIT License.
+*Note: Parts of this README (including the architecture diagram) were created with the help of Generative AI.*
